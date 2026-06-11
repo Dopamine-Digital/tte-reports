@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Margin Leak Report | The Transformation Exchange</title>
+<link rel="icon" type="image/png" href="../assets/tx-icon.png">
+<link rel="apple-touch-icon" href="../assets/tx-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2A4A;          /* wordmark + ink */
+  --blue:#3F6FC8;          /* speech-bubble mark */
+  --blue-deep:#2d569f;
+  --pink:#E6396F;          /* accent + "Exchange" */
+  --pink-deep:#c42b59;
+  --pink-soft:#fdeaf1;
+  --ink:#1B2A4A;
+  --muted:#5b6472;
+  --line:#e6e8ee;
+  --bg:#f2f3f5;
+  --card:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:hidden;max-width:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.hero h1,.hero .sub,.section-head h2,.leak h3,.verdict-line,.snapshot li{overflow-wrap:break-word}
+.wrap{max-width:900px;margin:0 auto;padding:0 22px 90px}
+svg{display:block}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}}
+
+/* logo lockup */
+.tx-logo{display:flex;align-items:center;gap:11px}
+.tx-mark{height:44px;width:auto;flex-shrink:0;display:block}
+.tx-word{line-height:1.02}
+.tx-word .l1{font-size:14px;font-weight:800;color:var(--navy);letter-spacing:-.3px;display:block;white-space:nowrap}
+.tx-word .l1 .ex{color:var(--pink)}
+.tx-word .l2{font-size:9.5px;font-weight:600;color:var(--muted);letter-spacing:.2px}
+
+/* top bar */
+.topbar{background:#fff;padding:14px 0;border-bottom:1px solid var(--line)}
+.topbar .row{max-width:900px;margin:0 auto;padding:0 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .rdiv{width:1px;height:26px;background:var(--line)}
+.brand .region{font-size:11px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:var(--blue)}
+.ai-pill{display:inline-flex;align-items:center;gap:8px;background:var(--pink-soft);border:1px solid #f6c4d6;color:var(--pink-deep);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:7px 14px;border-radius:30px}
+.ai-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--pink)}
+
+/* hero */
+.hero{background:
+   radial-gradient(circle at 88% 6%,rgba(63,111,200,.35),transparent 45%),
+   linear-gradient(150deg,#1B2A4A 0%,#22365c 70%,#1a2843 100%);
+  color:#fff;padding:48px 0 130px;position:relative;overflow:hidden}
+.hero .grid-tex{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1px);background-size:26px 26px;opacity:.16;pointer-events:none}
+.hero .row{max-width:900px;margin:0 auto;padding:0 22px;position:relative;z-index:2}
+.kicker{font-size:11.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#9fb6e0}
+.hero h1{font-size:36px;font-weight:900;letter-spacing:-1px;line-height:1.1;margin:13px 0 8px}
+.hero h1 .verdict{color:#ff9bbd}
+.hero .sub{font-size:15.5px;color:#d4ddee;max-width:660px;line-height:1.6}
+/* HARD RULE (mirrors CFO AI report): hero chips sit in a 2-col x 2-row grid.
+   Keep each chip's text short enough to stay on ONE line in its column on
+   mobile. Shorten the words, never let a chip wrap. */
+.prepared{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px;max-width:560px}
+.prepared .chip{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.24);border-radius:9px;padding:8px 13px;font-size:12.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prepared .chip b{color:#fff;font-weight:700}
+
+/* verdict / scale card */
+.headline-card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px rgba(27,42,74,.16);padding:30px 34px;margin-top:-94px;position:relative;z-index:3}
+.hc-lbl{font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+/* scale graphic */
+.scale{margin:16px 0 4px}
+.scale-track{display:flex;height:46px;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(27,42,74,.06)}
+.scale-track .z{flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;letter-spacing:.2px;color:#fff;text-align:center;padding:0 6px}
+.z-design{background:#2e9e6b}.z-interv{background:#e0922b}.z-unstable{background:#cf4040}
+.scale-track .z.dim{opacity:.34}
+.scale-marker{position:relative;height:18px;margin-top:8px}
+.scale-marker .pin{position:absolute;left:50%;transform:translateX(-50%);top:0;display:flex;flex-direction:column;align-items:center}
+.scale-marker .pin .tri{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:9px solid var(--navy)}
+.scale-marker .pin .txt{font-size:11px;font-weight:800;color:var(--navy);margin-top:3px;white-space:nowrap}
+.verdict-line{font-size:15.5px;color:var(--ink);margin:18px 0 0;line-height:1.55}
+.verdict-line b{color:var(--navy);font-weight:800}
+.indic{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.indic .num{font-size:38px;font-weight:900;color:var(--pink);letter-spacing:-1.5px;line-height:1;flex-shrink:0}
+.indic .num .cur{font-size:18px;vertical-align:super;font-weight:800}
+.indic .cap{font-size:14px;color:var(--ink);max-width:500px;line-height:1.45;font-weight:800}
+.indic .cap .note{display:block;font-size:12px;color:var(--muted);font-weight:500;font-style:italic;margin-top:5px;line-height:1.45}
+
+/* sections */
+.section{margin-top:48px}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:7px}
+.section-head h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.4px}
+.section-head .num{font-size:12.5px;font-weight:700;color:var(--pink-deep);background:var(--pink-soft);padding:4px 11px;border-radius:20px}
+.section-intro{font-size:14.5px;color:var(--muted);max-width:690px;margin-bottom:22px}
+
+/* snapshot */
+.snapshot{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px;box-shadow:0 8px 26px rgba(27,42,74,.05)}
+.snapshot .scan-note{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--blue-deep);font-weight:700;margin-bottom:18px}
+.snapshot .scan-note svg{width:16px;height:16px}
+.snapshot ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:14px 30px}
+.snapshot li{font-size:14px;color:var(--ink);padding-left:22px;position:relative;line-height:1.5}
+.snapshot li svg{position:absolute;left:0;top:4px;width:14px;height:14px;color:var(--blue)}
+.snapshot li b{color:var(--navy);font-weight:700}
+
+/* fault cards */
+.leaks{display:grid;gap:15px}
+.leak{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px 22px 23px;display:grid;grid-template-columns:52px 1fr;gap:19px;align-items:flex-start;position:relative;overflow:hidden;box-shadow:0 6px 20px rgba(27,42,74,.05);transition:box-shadow .22s,transform .22s,border-color .22s}
+.leak::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--pink),var(--pink-deep));transform:scaleY(0);transform-origin:top;transition:transform .25s}
+.leak:hover{box-shadow:0 16px 38px rgba(27,42,74,.12);transform:translateY(-3px);border-color:#dfe5f0}
+.leak:hover::before{transform:scaleY(1)}
+.leak .ic{width:52px;height:52px;border-radius:13px;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;color:var(--pink)}
+.leak .ic svg{width:25px;height:25px}
+.leak h3{font-size:16.5px;font-weight:800;color:var(--navy);margin-bottom:5px;letter-spacing:-.2px}
+.leak p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.leak .tell{display:inline-block;font-size:11.5px;color:var(--blue-deep);font-weight:600;margin-top:8px;font-style:italic}
+
+/* proof */
+.proof{background:radial-gradient(circle at 90% 110%,rgba(63,111,200,.4),transparent 48%),linear-gradient(155deg,#22365c,#1B2A4A);color:#fff;border-radius:18px;padding:36px 38px;position:relative;overflow:hidden}
+.proof .grid-tex{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);background-size:24px 24px;opacity:.08}
+.proof .tag{position:relative;z-index:2;display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff9bbd}
+.proof .story{position:relative;z-index:2;font-size:16px;line-height:1.6;color:#dde4f1;margin:15px 0 22px;max-width:680px}
+.proof .story b{color:#fff}
+.proof .arc{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.proof .step{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:15px 16px}
+.proof .step .badge{width:24px;height:24px;border-radius:7px;background:var(--pink);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.proof .step .t{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ff9bbd}
+.proof .step .d{font-size:13px;color:#e4e9f2;margin-top:4px;line-height:1.45}
+.proof .quote{position:relative;z-index:2;font-size:18px;font-weight:700;color:#fff;border-left:3px solid var(--pink);padding-left:18px;line-height:1.45}
+.proof .quote span{display:block;font-size:12.5px;font-weight:500;color:#aeb8cc;margin-top:9px;letter-spacing:.3px}
+
+/* guarantee */
+.guarantee{background:var(--pink-soft);border:1px solid #f6c8db;border-radius:16px;padding:24px 28px;display:flex;gap:19px;align-items:center;margin-top:18px}
+.guarantee .shield{width:48px;height:48px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--pink);flex-shrink:0;box-shadow:0 6px 16px rgba(230,57,111,.18)}
+.guarantee .shield svg{width:26px;height:26px}
+.guarantee p{font-size:15px;color:var(--ink);line-height:1.55}
+.guarantee p b{color:var(--pink-deep);font-weight:800}
+
+/* CTA */
+.cta{text-align:center;margin-top:48px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:44px 30px;box-shadow:0 10px 30px rgba(27,42,74,.06)}
+.cta .who{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:18px}
+.cta .who .av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(27,42,74,.28);position:relative;overflow:hidden}
+.cta .who .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%}
+.cta .who .wt{text-align:left;font-size:12.5px;color:var(--muted);line-height:1.3}
+.cta .who .wt b{display:block;color:var(--navy);font-size:14px;font-weight:800}
+.cta .who .wt .li-line{display:flex;width:fit-content;align-items:center;gap:6px;margin-top:6px;color:var(--blue-deep);font-weight:700;font-size:12.5px;text-decoration:none;transition:color .15s}
+.cta .who .wt .li-line:hover{color:var(--pink)}
+.cta .who .wt .li-line svg{width:14px;height:14px}
+.cta h2{font-size:26px;font-weight:900;color:var(--navy);letter-spacing:-.6px;margin-bottom:9px}
+.cta p{font-size:15px;color:var(--muted);max-width:560px;margin:0 auto 24px}
+.btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#ff5d92,var(--pink) 45%,var(--pink-deep));color:#fff;font-weight:800;font-size:15.5px;letter-spacing:.2px;line-height:1.3;text-align:center;white-space:nowrap;padding:16px 34px;border-radius:13px;text-decoration:none;box-shadow:0 12px 30px rgba(230,57,111,.36);transition:transform .15s,box-shadow .15s;max-width:480px;animation:btnpulse 2.8s ease-in-out infinite}
+.btn>*{position:relative;z-index:2}
+.btn::before{content:"";position:absolute;inset:0;border-radius:13px;background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 52%);z-index:1;pointer-events:none}
+.btn::after{content:"";position:absolute;top:-20%;left:-70%;width:45%;height:140%;z-index:1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:sheen 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes sheen{0%,58%{left:-70%}100%{left:150%}}
+@keyframes btnpulse{0%,100%{box-shadow:0 12px 30px rgba(230,57,111,.36)}50%{box-shadow:0 16px 44px rgba(230,57,111,.6)}}
+.btn:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 20px 46px rgba(230,57,111,.5)}
+.btn svg{width:18px;height:18px;flex-shrink:0}
+@media(prefers-reduced-motion:reduce){.btn,.btn::after{animation:none}}
+.cta .reassure{font-size:12.5px;color:var(--muted);margin-top:17px}
+
+.foot{text-align:center;margin-top:42px;font-size:11.5px;color:#8a93a4;line-height:1.7;max-width:720px;margin-left:auto;margin-right:auto}
+.foot .logo-sm{display:inline-block;font-weight:800;color:var(--navy);font-size:13px;letter-spacing:.3px;text-decoration:none}
+.foot .logo-sm .ex{color:var(--pink)}
+.foot .site{color:var(--blue-deep);font-weight:700;text-decoration:none}
+.foot .site:hover{color:var(--pink)}
+
+/* continuum (mirrors her SCI Diagnostic Continuum) */
+.continuum{margin:14px 0 2px}
+.cont-svg{width:100%;height:auto;display:block}
+.cont-axis{font:700 10px/1 'Inter',sans-serif;fill:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.cont-band{font:800 11px/1 'Inter',sans-serif;letter-spacing:.2px}
+.cont-lbl{font:800 11px/1 'Inter',sans-serif;fill:var(--navy)}
+.cont-sub{font:700 9px/1 'Inter',sans-serif;fill:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+
+/* indicative score + risk pills */
+.scoreblk{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:16px 0 2px;padding:15px 18px;background:#fafbfd;border:1px solid var(--line);border-radius:13px}
+.scoreblk .sc{font-size:33px;font-weight:900;color:var(--pink);letter-spacing:-1px;line-height:1;flex-shrink:0}
+.scoreblk .sc small{font-size:15px;color:var(--muted);font-weight:800}
+.scoreblk .scwrap{min-width:0}
+.scoreblk .sclbl{font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.scoreblk .sccls{font-size:15px;font-weight:800;color:var(--navy);margin-top:2px}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.pillrow .p{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:6px 11px;border-radius:20px;white-space:nowrap}
+.p-amber{background:#fdf0dd;color:#a9651a;border:1px solid #f3d4a3}
+.p-red{background:#fbe3e3;color:#b23232;border:1px solid #f0c0c0}
+.indic .num .per{font-size:16px;font-weight:800;color:var(--muted);letter-spacing:0}
+
+/* area-by-area read (mirrors her Area-Level Classification) */
+.scan-note{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--blue-deep);font-weight:700}
+.scan-note svg{width:16px;height:16px;flex-shrink:0}
+.arearead{display:grid;gap:10px}
+.arow{display:grid;grid-template-columns:1fr auto;gap:9px 16px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 18px;box-shadow:0 6px 18px rgba(27,42,74,.04)}
+.arow .q{font-size:14.5px;font-weight:800;color:var(--navy);line-height:1.35}
+.arow .find{grid-column:1/-1;font-size:13px;color:var(--muted);line-height:1.5}
+.cls{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:20px;white-space:nowrap;height:fit-content}
+.cls-design{background:#e4f5ec;color:#1f8a55;border:1px solid #bfe6cf}
+.cls-interv{background:#fdf0dd;color:#a9651a;border:1px solid #f3d4a3}
+.cls-unstable{background:#fbe3e3;color:#b23232;border:1px solid #f0c0c0}
+
+/* lead with the money */
+.moneylead{text-align:left}
+.ml-lbl{font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.ml-num{font-size:clamp(40px,9vw,62px);font-weight:900;color:var(--pink);letter-spacing:-2px;line-height:1.02;margin:6px 0 8px}
+.ml-num .cur{font-size:.5em;vertical-align:super;font-weight:800;letter-spacing:0}
+.ml-num .per{font-size:.34em;font-weight:800;color:var(--muted);letter-spacing:0}
+.ml-sub{font-size:14.5px;color:var(--ink);max-width:560px;line-height:1.5;font-weight:600}
+.ml-sub .note{display:block;font-size:12px;color:var(--muted);font-weight:500;font-style:italic;margin-top:6px}
+.hc-divider{height:1px;background:var(--line);margin:24px 0}
+.section-head .num{white-space:nowrap;flex-shrink:0}
+/* how-we-got-the-number derivation (mirrors CFO showing the math) */
+.calc{margin-top:15px;background:#fafbfd;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.calc .ct{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.calc .crow{display:flex;align-items:baseline;justify-content:space-between;gap:14px;font-size:13px;color:var(--ink);padding:5px 0;line-height:1.4}
+.calc .crow .cv{font-weight:800;color:var(--navy);white-space:nowrap}
+.calc .crow.tot{border-top:1px dashed var(--line);margin-top:5px;padding-top:9px}
+.calc .crow.tot .cv{color:var(--pink-deep)}
+
+/* proof stats row (uniform, centred, matches CFO) */
+.proof .stats{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:2px 0 22px}
+.proof .stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:16px 10px;text-align:center}
+.proof .stat .n{font-size:clamp(19px,5.6vw,26px);font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1;white-space:nowrap}
+/* HARD RULE: every stat label is a uniform TWO-line block. min-height reserves 2 lines so boxes never go ragged; write each label long enough to fill ~2 lines. */
+.proof .stat .l{font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#ff9bbd;margin-top:7px;line-height:1.3;min-height:2.6em}
+
+/* offer block (CFO-style) */
+.offer{background:linear-gradient(165deg,#ffffff,var(--pink-soft));border:1px solid #f3cede;border-radius:20px;padding:34px;box-shadow:0 16px 44px rgba(27,42,74,.08)}
+.offer-eyebrow{display:inline-block;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;padding:7px 14px;border-radius:30px}
+.offer-h{font-size:clamp(23px,5vw,31px);font-weight:900;color:var(--navy);letter-spacing:-.7px;line-height:1.12;margin:14px 0 16px}
+.offer-check{list-style:none;display:grid;gap:11px;margin:0 0 22px;padding:0}
+.offer-check li{position:relative;padding-left:30px;font-size:14.5px;color:var(--ink);line-height:1.5}
+.offer-check li::before{content:"";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--pink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/12px no-repeat}
+.offer .guar{background:#fff;border:1px solid #f3cede;border-radius:14px;padding:20px 22px;margin-bottom:22px;display:grid;grid-template-columns:52px 1fr;grid-template-areas:"ic title" "ic body";column-gap:18px;row-gap:7px;align-items:start}
+.offer .guar .shield{grid-area:ic;width:52px;height:52px;border-radius:13px;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;color:var(--pink)}
+.offer .guar .shield svg{width:25px;height:25px}
+.offer .guar h3{grid-area:title;margin:0;font-size:17.5px;font-weight:800;color:var(--navy);letter-spacing:-.2px;line-height:1.3}
+.offer .guar p{grid-area:body;margin:0;font-size:14px;color:var(--muted);line-height:1.55}
+.offer .guar b{color:var(--pink-deep);font-weight:800}
+.offer .guar sup{color:var(--pink);font-weight:800}
+.offer .stack-lbl{font-size:11px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.offer .stack{display:grid;gap:0}
+.offer .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink);padding:11px 0;border-bottom:1px dashed #f0cfe0}
+.offer .row .d{flex:1;min-width:0}
+.offer .row .v{text-decoration:line-through;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.offer .row .free{color:var(--pink);font-weight:900;font-size:12.5px;letter-spacing:.5px;white-space:nowrap}
+.offer .total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:14px;font-weight:900;color:var(--navy);font-size:15px}
+.offer .total .r{display:flex;gap:9px;align-items:baseline}
+.offer .total .v{text-decoration:line-through;color:var(--muted);font-size:14px}
+.offer .total .free{color:var(--pink);font-size:16px;letter-spacing:.3px}
+
+/* sources analysed (QA: every report shows the 3 source links Jordan checks congruence against) */
+.sources{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sources a{display:inline-flex;align-items:center;gap:4px;color:var(--blue-deep);font-weight:700;text-decoration:none}
+.sources a:hover{text-decoration:underline}
+.sources .sep{color:var(--line);font-weight:400}
+
+/* sticky mobile CTA */
+.sticky-bar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(27,42,74,.12);padding:11px 16px;transform:translateY(120%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.sticky-bar .btn{width:100%;max-width:460px;justify-content:center;padding:14px;box-shadow:0 5px 15px rgba(230,57,111,.3);animation:none}
+
+@media(max-width:720px){
+  .topbar .row{gap:10px}
+  .brand{min-width:0;gap:10px}
+  .brand .rdiv,.brand .region{display:none}
+  .tx-word .l2{display:none}
+  .tx-mark{height:34px}
+  .tx-word .l1{font-size:12.5px}
+  .tx-logo{gap:8px}
+  .ai-pill{white-space:nowrap;font-size:9.5px;padding:6px 11px;letter-spacing:.4px;flex-shrink:0}
+  .prepared{max-width:none}
+  .hero{padding:40px 0 112px}
+  .hero h1{font-size:25px;line-height:1.14}
+  .headline-card{padding:22px 18px;margin-top:-92px}
+  .indic{gap:12px}
+  .indic .num{font-size:32px}
+  .scale-track .z{font-size:10px;padding:8px 4px}
+  .section{margin-top:34px}
+  .section-head h2{font-size:20px}
+  .snapshot,.cta{padding:22px 18px}
+  .proof,.guarantee{padding:24px 20px}
+  .snapshot ul{grid-template-columns:1fr}
+  .proof .arc{grid-template-columns:1fr}
+  .leak{padding:18px 16px;gap:14px}
+  .pillrow{margin-left:0}
+  .arow{grid-template-columns:1fr}
+  .arow .cls{justify-self:start}
+  .offer{padding:24px 18px}
+  .offer .guar{grid-template-columns:auto 1fr;grid-template-areas:"ic title" "body body";column-gap:14px;align-items:center}
+  .offer .row{flex-wrap:wrap}
+  .wrap{padding-bottom:96px}
+  .sticky-bar{display:flex;justify-content:center}
+}
+@media(max-width:430px){
+  .wrap{padding:0 16px 96px}
+  .hero .row,.topbar .row{padding:0 14px}
+  .tx-mark{height:30px}
+  .tx-word .l1{font-size:11.5px}
+  .tx-logo{gap:7px}
+  .ai-pill{font-size:8.5px;padding:6px 9px;letter-spacing:.3px}
+  .hero h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <div class="row">
+    <div class="brand">
+      <div class="tx-logo">
+        <img class="tx-mark" src="../assets/tx-icon.png" alt="The Transformation Exchange">
+        <div class="tx-word"><span class="l1">The Transformation <span class="ex">Exchange</span></span><span class="l2">Design-led execution for complex organisations</span></div>
+      </div>
+      <span class="rdiv"></span>
+      <span class="region">United Kingdom</span>
+    </div>
+    <div class="ai-pill"><span class="dot"></span> AI Margin Report</div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="grid-tex"></div>
+  <div class="row">
+    <div class="kicker">Prepared for Instaloft</div>
+    <h1>Imagine running the group <span class="verdict">without you in every decision</span>.</h1>
+    <p class="sub">We read 30+ public signals on how the business is built. Here is the money tied up in running it through you, and how to get it back.</p>
+    <div class="prepared">
+      <div class="chip">Sector: <b>Loft boarding</b></div>
+      <div class="chip">Headcount: <b>~150 staff</b></div>
+      <div class="chip">Region: <b>Nationwide UK</b></div>
+      <div class="chip">Read: <b>11 Jun 2026</b></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- Verdict + scale -->
+  <div class="headline-card">
+    <div class="moneylead">
+      <div class="ml-lbl">Estimated leadership cost leaking, per year</div>
+      <div class="ml-num"><span class="cur">&pound;</span>31,000<span class="per">&nbsp;/ yr</span></div>
+      <div class="ml-sub">Senior-team time poured into low-leverage work the structure should absorb. We show you exactly where on a quick call, and what it is really costing you.</div>
+      <div class="calc">
+        <div class="ct">How we estimate this, on your numbers</div>
+        <div class="crow"><span>Senior-team pay across about four leaders at a ~&pound;22.5m group</span><span class="cv">~&pound;620k / yr</span></div>
+        <div class="crow"><span>Roughly 10% of their time on low-leverage work</span><span class="cv">~&pound;62k / yr</span></div>
+        <div class="crow tot"><span>Halved by the redesign, from 10% to about 5%</span><span class="cv">~&pound;31k recovered</span></div>
+      </div>
+      <div class="ml-sub" style="margin-top:12px"><span class="note" style="font-style:italic">Directional, modelled from public signals. Confirmed against your real numbers on the call, never a guarantee.</span></div>
+    </div>
+    <div class="hc-divider"></div>
+    <div class="hc-lbl">Where your business sits today</div>
+    <div class="continuum">
+      <svg class="cont-svg" viewBox="0 0 620 300" role="img" aria-label="Structural continuum, current position in the intervention-sustained band, target state low">
+        <!-- bands -->
+        <rect x="70" y="20" width="530" height="77" fill="#fbeaef"/>
+        <rect x="70" y="97" width="530" height="77" fill="#eaf1fb"/>
+        <rect x="70" y="174" width="530" height="76" fill="#e9f6ee"/>
+        <!-- band labels -->
+        <text class="cont-band" x="588" y="44" text-anchor="end" fill="#b23232">Structurally unstable</text>
+        <text class="cont-band" x="588" y="121" text-anchor="end" fill="#2d569f">Intervention-sustained</text>
+        <text class="cont-band" x="588" y="198" text-anchor="end" fill="#1f8a55">Design-sustained</text>
+        <!-- axes -->
+        <line x1="70" y1="20" x2="70" y2="250" stroke="#cfd6e2" stroke-width="1.5"/>
+        <line x1="70" y1="250" x2="600" y2="250" stroke="#cfd6e2" stroke-width="1.5"/>
+        <text class="cont-axis" x="20" y="138" transform="rotate(-90 20 138)" text-anchor="middle">Leadership intervention</text>
+        <text class="cont-axis" x="335" y="282" text-anchor="middle">Structural capability</text>
+        <!-- curve -->
+        <path d="M92,42 C150,58 175,150 300,196 C420,236 520,242 590,244" fill="none" stroke="var(--pink)" stroke-width="3" stroke-linecap="round"/>
+        <!-- target state (low, design band) -->
+        <circle cx="500" cy="241" r="7" fill="#1f8a55"/>
+        <text class="cont-sub" x="500" y="225" text-anchor="middle">Target state</text>
+        <!-- current position (intervention-sustained band) -->
+        <circle cx="188" cy="120" r="12" fill="var(--pink)"/>
+        <text class="cont-lbl" x="212" y="110" text-anchor="start">Current position</text>
+        <text class="cont-sub" x="212" y="124" text-anchor="start">where you are today</text>
+      </svg>
+    </div>
+    <div class="scoreblk">
+      <div class="scwrap">
+        <div class="sclbl">Indicative structural position</div>
+        <div class="sccls">Intervention-sustained, scaling fast</div>
+      </div>
+      <div class="pillrow">
+        <span class="p p-amber">Structural fragility</span>
+        <span class="p p-red">Margin at risk</span>
+      </div>
+    </div>
+    <p class="verdict-line">Translated: <b>the group grew faster than the way it runs.</b> Four brands and eleven depots now run largely through you and a leadership team you have only just put in place, work gets redone as it passes between sales, survey and install, and senior time goes into running jobs it never gets charged to. That is where the leadership cost is leaking.</p>
+  </div>
+
+  <!-- Area-by-area read (mirrors her SCI Area-Level Classification) -->
+  <div class="section">
+    <div class="section-head"><h2>The structural read, area by area</h2></div>
+    <p class="section-intro">An outside-in read across the five areas Medhya scores in her full diagnostic, estimated from public signals. The real picture comes from your own leaders' answers on the call.</p>
+    <div class="scan-note" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Read from your website, LinkedIn, recent hires and Companies House</div>
+    <div class="arearead">
+      <div class="arow">
+        <div class="q">Do priorities stay consistent once work begins?</div>
+        <span class="cls cls-interv">Intervention-sustained</span>
+        <div class="find">Group turnover up to about &pound;22.5m with eleven depots and three sister brands now live, the point where priorities tend to get set by whichever depot or brand is loudest rather than held to one standard.</div>
+      </div>
+      <div class="arow">
+        <div class="q">Does work move as designed?</div>
+        <span class="cls cls-unstable">Structurally unstable</span>
+        <div class="find">Every job runs sales to survey to install across separate depots with no visible standard handover, so work moves by chasing and gets redone as it passes between those steps.</div>
+      </div>
+      <div class="arow">
+        <div class="q">Are decisions made at the right level?</div>
+        <span class="cls cls-interv">Intervention-sustained</span>
+        <div class="find">You are still named as close to Instaspark and GarageFlex day to day, and the Managing Director, Operations Director and Finance Director only came in recently, so decisions likely still route back up to you rather than sit with that new layer.</div>
+      </div>
+      <div class="arow">
+        <div class="q">Do leaders receive clear information?</div>
+        <span class="cls cls-interv">Intervention-sustained</span>
+        <div class="find">Group revenue up around 57 percent in a year with the reporting layer only just being built, so leaders are likely running on informal updates rather than reporting that flags a depot slipping early.</div>
+      </div>
+      <div class="arow">
+        <div class="q">Does execution remain stable as workload increases?</div>
+        <span class="cls cls-unstable">Structurally unstable</span>
+        <div class="find">Adding three more depots on top of a 57 percent jump is exactly the load where install quality and margin slip, just as volume is highest and everyone is stretched.</div>
+      </div>
+      <div class="sources"><span>Sources analysed:</span> <a href="https://instaloft.co.uk" target="_blank" rel="noopener">Website</a> <span class="sep">&middot;</span> <a href="https://uk.linkedin.com/company/instaloft-ltd" target="_blank" rel="noopener">Company LinkedIn</a> <span class="sep">&middot;</span> <a href="https://www.linkedin.com/in/robstoneuk" target="_blank" rel="noopener">LinkedIn profile</a></div>
+    </div>
+  </div>
+
+  <!-- Faults -->
+  <div class="section">
+    <div class="section-head"><h2>The three structural changes most likely to move the needle</h2><span class="num">Top 3</span></div>
+    <p class="section-intro">Not solutions, the changes themselves. On the diagnostic Medhya confirms which of these are live for you, on your leaders' own answers, and what each one is worth.</p>
+    <div class="leaks">
+
+      <div class="leak">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/><path d="M3 12h12"/></svg></div>
+        <div>
+          <h3>Set clear decision rights</h3>
+          <p>Give your depot managers and the new Managing Director and directors defined authority to decide without routing back to you. Decisions stop queueing behind you, and the founder time you still spend across Instaloft, Instaspark and GarageFlex comes back.</p>
+        </div>
+      </div>
+
+      <div class="leak">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+        <div>
+          <h3>Standardise how work flows between functions</h3>
+          <p>One agreed way a job hands over from sales to survey to install, the same across every depot. The same job stops being re-surveyed or redone before it ships, which is where margin is quietly spent twice.</p>
+        </div>
+      </div>
+
+      <div class="leak">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div>
+          <h3>Make leadership information formal, not informal</h3>
+          <p>Reporting that surfaces a depot slipping on margin or timeline early, rather than leaders relying on personal chasing across eleven sites to know what is really happening. Problems show up while they are still cheap to fix.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Proof -->
+  <div class="section">
+    <div class="proof">
+      <div class="grid-tex"></div>
+      <div class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Case study &middot; UK energy infrastructure</div>
+      <p class="story">Medhya spent <b>25 years</b> inside big-consulting transformation and left to build the opposite of deck-and-leave work. A <b>UK district heat network operator</b> brought her in when fast growth left performance hanging on the leadership team intervening on everything. She ran the structural diagnostic, pinpointed the three faults capping them, and redesigned decision rights and work flow so the business ran by design, not by escalation.</p>
+      <div class="stats">
+        <div class="stat"><div class="n">~15%</div><div class="l">Margin<br>recovered</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">Structural<br>faults fixed</div></div>
+        <div class="stat"><div class="n">90 days</div><div class="l">To embed<br>the redesign</div></div>
+      </div>
+      <div class="arc">
+        <div class="step"><div class="badge">1</div><div class="t">Weeks 1 to 6</div><div class="d">Diagnostic: four to six leaders scored, the top three structural faults pinpointed</div></div>
+        <div class="step"><div class="badge">2</div><div class="t">Weeks 6 to 12</div><div class="d">Redesign: decision rights, work flow and accountability rebuilt around the faults</div></div>
+        <div class="step"><div class="badge">3</div><div class="t">90 days</div><div class="d">Implementation: changes embedded into the operating rhythm, then a clean exit</div></div>
+      </div>
+      <div class="quote">&ldquo;They brought structure and organisation to the initiative that proved invaluable to its success.&rdquo;<span>Programme lead, UK energy infrastructure client</span></div>
+    </div>
+
+  </div>
+
+  <!-- Offer -->
+  <div class="section">
+    <div class="offer">
+      <div class="offer-eyebrow">Your free Margin Leak Diagnostic</div>
+      <h2 class="offer-h">We find the &pound;31,000, or you get a &pound;2,700 plan free</h2>
+      <ul class="offer-check">
+        <li>Fifteen minutes to start: a quick fit check with Medhya, then we book your diagnostic.</li>
+        <li>On a 45-minute diagnostic Medhya pinpoints exactly where your leadership cost is leaking, on your own numbers.</li>
+        <li>You walk away knowing exactly where the &pound;31,000 is leaking and a clear 90-day plan to put that money back in your pocket.</li>
+      </ul>
+      <div class="guar">
+        <span class="shield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+        <h3>The &pound;31,000 guarantee<sup>*</sup></h3>
+        <p>On a quick call we will find at least <b>&pound;31,000 a year</b> you are leaving on the table. If we cannot, you get a custom 90-day structural plan, normally <b>&pound;2,700</b>, completely free.</p>
+      </div>
+      <div class="stack-lbl">What you get, free</div>
+      <div class="stack">
+        <div class="row"><span class="d">45-minute structural diagnostic with Medhya</span><span class="v">&pound;1,000</span><span class="free">FREE</span></div>
+        <div class="row"><span class="d">Written Margin Leak findings for your business</span><span class="v">&pound;750</span><span class="free">FREE</span></div>
+        <div class="row"><span class="d">Custom 90-day structural plan if we miss the guarantee</span><span class="v">&pound;2,700</span><span class="free">FREE</span></div>
+      </div>
+      <div class="total"><span>Total value</span><span class="r"><span class="v">&pound;4,450</span><span class="free">Yours free</span></span></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="who">
+      <div class="av"><img src="../assets/medhya.jpg" alt="Medhya Sahay"></div>
+      <div class="wt"><b>Medhya Sahay</b>Founder, The Transformation Exchange<a class="li-line" href="https://www.linkedin.com/in/medhyasahay/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.35V9h3.42v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.8 0 0 .78 0 1.73v20.54C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .78 23.2 0 22.22 0z"/></svg> Connect with me on LinkedIn</a></div>
+    </div>
+    <h2>Book a 15-minute fit check to see if this fits your business</h2>
+    <p>A quick, free 15-minute call with Medhya to see whether it makes sense to go deeper. If it does, she runs the full diagnostic and shows you exactly where the money is leaking, on your own figures. No pressure either way.</p>
+    <a class="btn" href="https://www.linkedin.com/in/medhyasahay/" target="_blank" rel="noopener"><span>Book your free fit check</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+    <div class="reassure">A completely free 15-minute fit check with Medhya. No pressure either way.</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="foot">
+    <a class="logo-sm" href="https://thetransformationexchange.studio/" target="_blank" rel="noopener">The Transformation <span class="ex">Exchange</span></a>
+    Design-led execution for complex organisations. Performance reinforced by design.<br>
+    <a class="site" href="https://thetransformationexchange.studio/" target="_blank" rel="noopener">thetransformationexchange.studio</a><br>
+    This report is an AI-assisted read of publicly available signals, benchmarked against comparable UK firms. All figures are directional estimates, confirmed on the call. Prepared for the named recipient only.<br>
+    *The guarantee applies provided you meet the qualifying criteria: size band, sector, and a decision-maker on the call.
+  </div>
+
+</div>
+
+<div class="sticky-bar"><a class="btn" href="https://www.linkedin.com/in/medhyasahay/" target="_blank" rel="noopener"><span>Book your free fit check</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+
+<script>
+(function(){
+  var sel='.headline-card,.section-head,.snapshot,.leak,.proof,.offer,.cta';
+  var els=[].slice.call(document.querySelectorAll(sel));
+  els.forEach(function(el){el.classList.add('reveal')});
+  if(!('IntersectionObserver' in window)){els.forEach(function(el){el.classList.add('in')});return;}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){io.observe(el)});
+})();
+(function(){
+  var bar=document.querySelector('.sticky-bar');
+  var hero=document.querySelector('.hero'), cta=document.querySelector('.cta');
+  if(!bar||!hero||!cta||!('IntersectionObserver' in window))return;
+  var pastHero=false, ctaVis=false;
+  function upd(){bar.style.transform=(pastHero&&!ctaVis)?'translateY(0)':'translateY(120%)';}
+  new IntersectionObserver(function(e){pastHero=!e[0].isIntersecting;upd();},{rootMargin:'-70px 0px 0px 0px'}).observe(hero);
+  new IntersectionObserver(function(e){ctaVis=e[0].isIntersecting;upd();},{threshold:.05}).observe(cta);
+})();
+</script>
+
+<!-- Open-tracking beacon. Pings docs.dopaminedigital.io/track (public CF bypass), works cross-origin. -->
+<script>
+(function(){
+  var LEAD = "Instaloft";
+  var SLUG = "tte-report-instaloft-xd45";
+  try{
+    var _ddKey = 'dd_op_' + location.pathname + '_' + new Date().toDateString();
+    var _seen = false; try{ _seen = !!localStorage.getItem(_ddKey); if(!_seen) localStorage.setItem(_ddKey,'1'); }catch(e){}
+    if(!_seen){
+      new Image().src = "https://docs.dopaminedigital.io/track?event=opened&report=1&client=transformation-exchange&slug="
+        + encodeURIComponent(SLUG) + "&title=" + encodeURIComponent(LEAD) + "&t=" + Date.now();
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
