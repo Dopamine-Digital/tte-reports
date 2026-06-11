@@ -575,11 +575,14 @@ svg{display:block}
     var _seen = false; try{ _seen = !!localStorage.getItem(_ddKey); if(!_seen) localStorage.setItem(_ddKey,'1'); }catch(e){}
     if(!_seen){ ping('opened'); }
   }catch(e){}
-  // Click: every time the prospect clicks a booking CTA (sticky bar, final CTA, any .btn). A click is hotter than an open.
+  // Click: prospect clicks a booking CTA (sticky bar, final CTA, any .btn). Fires event=book, which the
+  // /track endpoint treats as a deliberate-intent click (📞 "Clicked: book a call") and pings #audit-logs
+  // + Telegram. A click is hotter than an open. Once per page load (dedupe so a double-click is one ping).
   try{
+    var _clicked = false;
     document.addEventListener('click', function(e){
       var a = e.target && e.target.closest && e.target.closest('.sticky-bar a, .cta a, a.btn');
-      if(a){ ping('clicked', 'book-fit-check'); }
+      if(a && !_clicked){ _clicked = true; ping('book'); }
     }, true);
   }catch(e){}
 })();
