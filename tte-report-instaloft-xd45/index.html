@@ -561,13 +561,26 @@ svg{display:block}
 (function(){
   var LEAD = "Instaloft";
   var SLUG = "tte-report-instaloft-xd45";
+  var BASE = "https://docs.dopaminedigital.io/track?report=1&client=transformation-exchange&slug="
+    + encodeURIComponent(SLUG) + "&title=" + encodeURIComponent(LEAD);
+  function ping(ev, label){
+    try{
+      var u = BASE + "&event=" + encodeURIComponent(ev) + (label ? "&label=" + encodeURIComponent(label) : "") + "&t=" + Date.now();
+      if(navigator.sendBeacon){ navigator.sendBeacon(u); } else { new Image().src = u; }
+    }catch(e){}
+  }
+  // Open: once per browser per day.
   try{
     var _ddKey = 'dd_op_' + location.pathname + '_' + new Date().toDateString();
     var _seen = false; try{ _seen = !!localStorage.getItem(_ddKey); if(!_seen) localStorage.setItem(_ddKey,'1'); }catch(e){}
-    if(!_seen){
-      new Image().src = "https://docs.dopaminedigital.io/track?event=opened&report=1&client=transformation-exchange&slug="
-        + encodeURIComponent(SLUG) + "&title=" + encodeURIComponent(LEAD) + "&t=" + Date.now();
-    }
+    if(!_seen){ ping('opened'); }
+  }catch(e){}
+  // Click: every time the prospect clicks a booking CTA (sticky bar, final CTA, any .btn). A click is hotter than an open.
+  try{
+    document.addEventListener('click', function(e){
+      var a = e.target && e.target.closest && e.target.closest('.sticky-bar a, .cta a, a.btn');
+      if(a){ ping('clicked', 'book-fit-check'); }
+    }, true);
   }catch(e){}
 })();
 </script>
