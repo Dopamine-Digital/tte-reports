@@ -35,6 +35,9 @@ svg{display:block}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}}
 
+.sample-flag{background:#eef3fb;color:#2d569f;font-size:11.5px;font-weight:600;letter-spacing:.2px;text-align:center;padding:8px 16px;border-bottom:1px solid #d8e4f6}
+.sample-flag b{font-weight:800}
+
 /* logo lockup */
 .tx-logo{display:flex;align-items:center;gap:11px}
 .tx-mark{height:44px;width:auto;flex-shrink:0;display:block}
@@ -270,6 +273,7 @@ svg{display:block}
   .tx-mark{height:34px}
   .tx-word .l1{font-size:12.5px}
   .tx-logo{gap:8px}
+  .sample-flag{font-size:10.5px}
   .ai-pill{white-space:nowrap;font-size:9.5px;padding:6px 11px;letter-spacing:.4px;flex-shrink:0}
   .prepared{max-width:none}
   .hero{padding:40px 0 112px}
@@ -301,11 +305,14 @@ svg{display:block}
   .tx-word .l1{font-size:11.5px}
   .tx-logo{gap:7px}
   .ai-pill{font-size:8.5px;padding:6px 9px;letter-spacing:.3px}
+  .sample-flag{font-size:10px}
   .hero h1{font-size:22px}
 }
 </style>
 </head>
 <body>
+
+<!-- sample flag removed for test report -->
 
 <!-- Top bar -->
 <header class="topbar">
@@ -326,14 +333,14 @@ svg{display:block}
 <section class="hero">
   <div class="grid-tex"></div>
   <div class="row">
-    <div class="kicker">Prepared for Instaloft</div>
-    <h1>Imagine running the group <span class="verdict">without you in every decision</span>.</h1>
+    <div class="kicker">Prepared for Test Company Ltd</div>
+    <h1>Imagine running the business <span class="verdict">without you in every decision</span>.</h1>
     <p class="sub">We read 30+ public signals on how the business is built. Here is the money tied up in running it through you, and how to get it back.</p>
     <div class="prepared">
-      <div class="chip">Sector: <b>Loft boarding</b></div>
-      <div class="chip">Headcount: <b>~150 staff</b></div>
-      <div class="chip">Region: <b>Nationwide UK</b></div>
-      <div class="chip">Read: <b>11 Jun 2026</b></div>
+      <div class="chip">Sector: <b>Construction</b></div>
+      <div class="chip">Headcount: <b>~45 staff</b></div>
+      <div class="chip">Region: <b>South East UK</b></div>
+      <div class="chip">Read: <b>15 Jun 2026</b></div>
     </div>
   </div>
 </section>
@@ -344,20 +351,20 @@ svg{display:block}
   <div class="headline-card">
     <div class="moneylead">
       <div class="ml-lbl">Estimated leadership cost leaking, per year</div>
-      <div class="ml-num"><span class="cur">&pound;</span>31,000<span class="per">&nbsp;/ yr</span></div>
+      <div class="ml-num"><span class="cur">&pound;</span>38,000<span class="per">&nbsp;/ yr</span></div>
       <div class="ml-sub">Senior-team time poured into low-leverage work the structure should absorb. We show you exactly where on a quick call, and what it is really costing you.</div>
       <div class="calc">
-        <div class="ct">How we estimate this, on your numbers</div>
-        <div class="crow"><span>Senior-team pay across about four leaders at a ~&pound;22.5m group</span><span class="cv">~&pound;620k / yr</span></div>
-        <div class="crow"><span>Roughly 10% of their time on low-leverage work</span><span class="cv">~&pound;62k / yr</span></div>
-        <div class="crow tot"><span>Halved by the redesign, from 10% to about 5%</span><span class="cv">~&pound;31k recovered</span></div>
+        <div class="ct">How we estimate this</div>
+        <div class="crow"><span>Senior-team pay, about three leaders</span><span class="cv">~&pound;380k / yr</span></div>
+        <div class="crow"><span>Roughly 20% of their time on low-leverage work</span><span class="cv">~&pound;76k / yr</span></div>
+        <div class="crow tot"><span>Halved by the redesign, from 20% to about 10%</span><span class="cv">~&pound;38k recovered</span></div>
       </div>
       <div class="ml-sub" style="margin-top:12px"><span class="note" style="font-style:italic">Directional, modelled from public signals. Confirmed against your real numbers on the call, never a guarantee.</span></div>
     </div>
     <div class="hc-divider"></div>
     <div class="hc-lbl">Where your business sits today</div>
     <div class="continuum">
-      <svg class="cont-svg" viewBox="0 0 620 300" role="img" aria-label="Structural continuum, current position in the intervention-sustained band, target state low">
+      <svg class="cont-svg" viewBox="0 0 620 300" role="img" aria-label="Structural continuum, current position high on leadership intervention, target state low">
         <!-- bands -->
         <rect x="70" y="20" width="530" height="77" fill="#fbeaef"/>
         <rect x="70" y="97" width="530" height="77" fill="#eaf1fb"/>
@@ -376,23 +383,23 @@ svg{display:block}
         <!-- target state (low, design band) -->
         <circle cx="500" cy="241" r="7" fill="#1f8a55"/>
         <text class="cont-sub" x="500" y="225" text-anchor="middle">Target state</text>
-        <!-- current position (intervention-sustained band) -->
-        <circle cx="188" cy="120" r="12" fill="var(--pink)"/>
-        <text class="cont-lbl" x="212" y="110" text-anchor="start">Current position</text>
-        <text class="cont-sub" x="212" y="124" text-anchor="start">where you are today</text>
+        <!-- current position (high, near unstable/intervention edge) -->
+        <circle cx="138" cy="70" r="12" fill="var(--pink)"/>
+        <text class="cont-lbl" x="162" y="60" text-anchor="start">Current position</text>
+        <text class="cont-sub" x="162" y="74" text-anchor="start">where you are today</text>
       </svg>
     </div>
     <div class="scoreblk">
       <div class="scwrap">
         <div class="sclbl">Indicative structural position</div>
-        <div class="sccls">Intervention-sustained, scaling fast</div>
+        <div class="sccls">Intervention-sustained, trending unstable</div>
       </div>
       <div class="pillrow">
         <span class="p p-amber">Structural fragility</span>
-        <span class="p p-red">Margin at risk</span>
+        <span class="p p-red">Structural risk</span>
       </div>
     </div>
-    <p class="verdict-line">Translated: <b>the group grew faster than the way it runs.</b> Four brands and eleven depots now run largely through you and a leadership team you have only just put in place, work gets redone as it passes between sales, survey and install, and senior time goes into running jobs it never gets charged to. That is where the leadership cost is leaking.</p>
+    <p class="verdict-line">Translated: <b>the business grew faster than the way it runs.</b> Decisions still route back to you and your directors, work gets redone as it passes between commercial and delivery, and senior time is being poured into delivery it never gets charged to. That is where the leadership cost is leaking.</p>
   </div>
 
   <!-- Area-by-area read (mirrors her SCI Area-Level Classification) -->
@@ -404,29 +411,29 @@ svg{display:block}
       <div class="arow">
         <div class="q">Do priorities stay consistent once work begins?</div>
         <span class="cls cls-interv">Intervention-sustained</span>
-        <div class="find">Group turnover up to about &pound;22.5m with eleven depots and three sister brands now live, the point where priorities tend to get set by whichever depot or brand is loudest rather than held to one standard.</div>
+        <div class="find">A run of new contract wins with delivery now stretched across more sites, the point where priorities tend to get reset by whichever job is loudest rather than held to a standard.</div>
       </div>
       <div class="arow">
         <div class="q">Does work move as designed?</div>
         <span class="cls cls-unstable">Structurally unstable</span>
-        <div class="find">Every job runs sales to survey to install across separate depots with no visible standard handover, so work moves by chasing and gets redone as it passes between those steps.</div>
+        <div class="find">Commercial, delivery and design all touch every job with no visible standard handover, so work moves by chasing and gets redone as it passes between functions.</div>
       </div>
       <div class="arow">
         <div class="q">Are decisions made at the right level?</div>
         <span class="cls cls-interv">Intervention-sustained</span>
-        <div class="find">You are still named as close to Instaspark and GarageFlex day to day, and the Managing Director, Operations Director and Finance Director only came in recently, so decisions likely still route back up to you rather than sit with that new layer.</div>
+        <div class="find">Founder and directors are still named on day-to-day delivery, so decisions appear to route back up to them rather than sit with the project and commercial managers you have hired.</div>
       </div>
       <div class="arow">
         <div class="q">Do leaders receive clear information?</div>
         <span class="cls cls-interv">Intervention-sustained</span>
-        <div class="find">Group revenue up around 57 percent in a year with the reporting layer only just being built, so leaders are likely running on informal updates rather than reporting that flags a depot slipping early.</div>
+        <div class="find">Headcount up around 90 percent with no sign the reporting layer scaled with it, so leaders are likely running on informal updates rather than reporting that flags risk early.</div>
       </div>
       <div class="arow">
         <div class="q">Does execution remain stable as workload increases?</div>
         <span class="cls cls-unstable">Structurally unstable</span>
-        <div class="find">Adding three more depots on top of a 57 percent jump is exactly the load where install quality and margin slip, just as volume is highest and everyone is stretched.</div>
+        <div class="find">Growth outpacing profit on Companies House is the signature of execution straining under heavier load, where quality and margin slip exactly when volume is highest.</div>
       </div>
-      <div class="sources"><span>Sources analysed:</span> <a href="https://instaloft.co.uk" target="_blank" rel="noopener">Website</a> <span class="sep">&middot;</span> <a href="https://uk.linkedin.com/company/instaloft-ltd" target="_blank" rel="noopener">Company LinkedIn</a> <span class="sep">&middot;</span> <a href="https://www.linkedin.com/in/robstoneuk" target="_blank" rel="noopener">LinkedIn profile</a></div>
+      <div class="sources"><span>Sources analysed:</span> <a href="https://example.com" target="_blank" rel="noopener">Website</a> <span class="sep">&middot;</span> <a href="https://linkedin.com/company/example" target="_blank" rel="noopener">Company LinkedIn</a> <span class="sep">&middot;</span> <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn profile</a></div>
     </div>
   </div>
 
@@ -440,7 +447,7 @@ svg{display:block}
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/><path d="M3 12h12"/></svg></div>
         <div>
           <h3>Set clear decision rights</h3>
-          <p>Give your depot managers and the new Managing Director and directors defined authority to decide without routing back to you. Decisions stop queueing behind you, and the founder time you still spend across Instaloft, Instaspark and GarageFlex comes back.</p>
+          <p>Give your project and commercial managers defined authority to decide without routing back up. Decisions stop queueing behind you and your directors, and senior time stops being spent on calls that should sit a level down.</p>
         </div>
       </div>
 
@@ -448,7 +455,7 @@ svg{display:block}
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
         <div>
           <h3>Standardise how work flows between functions</h3>
-          <p>One agreed way a job hands over from sales to survey to install, the same across every depot. The same job stops being re-surveyed or redone before it ships, which is where margin is quietly spent twice.</p>
+          <p>One agreed way a job hands over between commercial, delivery and design. The same work stops being redone two or three times before it ships, which is where margin is quietly spent twice.</p>
         </div>
       </div>
 
@@ -456,7 +463,7 @@ svg{display:block}
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <div>
           <h3>Make leadership information formal, not informal</h3>
-          <p>Reporting that surfaces a depot slipping on margin or timeline early, rather than leaders relying on personal chasing across eleven sites to know what is really happening. Problems show up while they are still cheap to fix.</p>
+          <p>Reporting that surfaces risk to margin and timeline early, rather than leaders relying on personal chasing to know what is really happening. Problems show up while they are still cheap to fix.</p>
         </div>
       </div>
 
@@ -484,20 +491,42 @@ svg{display:block}
 
   </div>
 
+  <!-- Reports we have already prepared -->
+  <div class="section">
+    <div class="section-head"><h2>Reports we have already prepared for leaders like you</h2></div>
+    <p class="section-intro">We have run the same outside-in structural read for directors and CEOs across UK construction, energy and services. Here are a few of the businesses we have already scanned.</p>
+    <div class="leaks">
+      <div class="leak">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div>
+          <h3>Instaloft</h3>
+          <p>Multi-award-winning loft, garage and electrical services group. ~150 staff, South West UK. Report identified £31,000 in annual leadership cost leaking through founder-dependent decision routing and informal handovers between divisions.</p>
+        </div>
+      </div>
+      <div class="leak">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div>
+          <h3>Groundwork Services Durham</h3>
+          <p>Civil groundwork and utilities contractor, North East England. Report surfaced structural fragility in how project delivery scales when the director is pulled across multiple live sites at once.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Offer -->
   <div class="section">
     <div class="offer">
       <div class="offer-eyebrow">Your free Margin Leak Diagnostic</div>
-      <h2 class="offer-h">We find the &pound;31,000, or you get a &pound;2,700 plan free</h2>
+      <h2 class="offer-h">We find the &pound;38,000, or you get a &pound;2,700 plan free</h2>
       <ul class="offer-check">
         <li>Fifteen minutes to start: a quick fit check with Medhya, then we book your diagnostic.</li>
         <li>On a 45-minute diagnostic Medhya pinpoints exactly where your leadership cost is leaking, on your own numbers.</li>
-        <li>You walk away knowing exactly where the &pound;31,000 is leaking and a clear 90-day plan to put that money back in your pocket.</li>
+        <li>You walk away knowing exactly where the &pound;38,000 is leaking and a clear 90-day plan to put that money back in your pocket.</li>
       </ul>
       <div class="guar">
         <span class="shield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
-        <h3>The &pound;31,000 guarantee<sup>*</sup></h3>
-        <p>On a quick call we will find at least <b>&pound;31,000 a year</b> you are leaving on the table. If we cannot, you get a custom 90-day structural plan, normally <b>&pound;2,700</b>, completely free.</p>
+        <h3>The &pound;38,000 guarantee<sup>*</sup></h3>
+        <p>On a quick call we will find at least <b>&pound;38,000 a year</b> you are leaving on the table. If we cannot, you get a custom 90-day structural plan, normally <b>&pound;2,700</b>, completely free.</p>
       </div>
       <div class="stack-lbl">What you get, free</div>
       <div class="stack">
@@ -556,11 +585,12 @@ svg{display:block}
 })();
 </script>
 
-<!-- Open-tracking beacon. Pings docs.dopaminedigital.io/track (public CF bypass), works cross-origin. -->
+<!-- Open-tracking beacon. Pings docs.dopaminedigital.io/track (public CF bypass), works cross-origin.
+     Set LEAD to the prospect company on a real scan; no "(sample)". Slug must match the published <slug>. -->
 <script>
 (function(){
-  var LEAD = "Instaloft";
-  var SLUG = "tte-report-instaloft-xd45";
+  var LEAD = "Test Company Ltd";
+  var SLUG = "test-filip-dry-run";         // REQUIRED: the published /<slug>/ (same as the thetransformationexchange.report URL)
   var BASE = "https://docs.dopaminedigital.io/track?report=1&client=transformation-exchange&slug="
     + encodeURIComponent(SLUG) + "&title=" + encodeURIComponent(LEAD);
   function ping(ev, label){
