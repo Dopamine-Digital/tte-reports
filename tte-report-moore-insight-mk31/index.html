@@ -167,6 +167,8 @@ img{max-width:100%;height:auto}
 .marrow{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:30px;font-weight:700;font-family:var(--mono)}
 .mcap{margin-top:16px;font-size:13.5px;color:var(--ink);background:var(--accent-tint);border-radius:10px;padding:13px 15px;line-height:1.5}
 .mcap b{font-weight:700}
+.chartcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px 18px;box-shadow:0 8px 26px rgba(27,42,74,.05)}
+.chartcard svg{width:100%;height:auto;display:block}
 @media(max-width:680px){.mech{grid-template-columns:1fr}.marrow{transform:rotate(90deg)}}
 
 /* offer */
@@ -385,21 +387,44 @@ img{max-width:100%;height:auto}
   <!-- Mechanism: the USP made visual -->
   <div class="section">
     <div class="section-head"><h2>What the fix actually does</h2></div>
-    <p class="section-intro">Medhya does not bolt AI onto how you work. She redesigns who owns which decisions so the structure carries the work, not the partners. That is the move from intervention-sustained to design-sustained.</p>
-    <div class="mech">
-      <div class="mpanel mbefore">
-        <h4>Today, runs through you</h4>
-        <img src="../assets/mech-before.jpeg" alt="An overwhelmed leader tangled in work that all routes back through them">
-        <p>Every stage checks back with you before it can move. Step away for a fortnight and the work waits.</p>
-      </div>
-      <div class="marrow">&rarr;</div>
-      <div class="mpanel mafter">
-        <h4>By design</h4>
-        <img src="../assets/mech-after.jpeg" alt="A calm leader overseeing a system that runs by itself">
-        <p>Each stage owns its decision and work flows straight across. You step up to winning and strategy.</p>
-      </div>
+    <p class="section-intro">The bigger you get, the more a business run through its leaders leaks, in rework, escalation and senior time. Run by design, the structure carries it and the leak stays flat. The gap between the two lines is what you recover, about &pound;90,000 a year today.</p>
+    <div class="chartcard">
+      <svg viewBox="0 0 720 380" role="img" aria-label="Line chart: the cost of running the business through its leaders climbs as the business grows, while running it by design stays flat. The gap is what you recover, about ninety thousand pounds a year today.">
+        <!-- gridlines -->
+        <g stroke="#eef0f4" stroke-width="1">
+          <line x1="72" y1="96" x2="688" y2="96"/>
+          <line x1="72" y1="168" x2="688" y2="168"/>
+          <line x1="72" y1="240" x2="688" y2="240"/>
+        </g>
+        <!-- axes -->
+        <line x1="72" y1="36" x2="72" y2="312" stroke="#cfd6e2" stroke-width="1.5"/>
+        <line x1="72" y1="312" x2="688" y2="312" stroke="#cfd6e2" stroke-width="1.5"/>
+        <text x="22" y="190" transform="rotate(-90 22 190)" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="10.5" fill="#8a93a4">Cost of running it through you</text>
+        <text x="380" y="352" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="10.5" fill="#8a93a4">As the business grows  &#8594;</text>
+        <!-- shaded gap = what you recover -->
+        <polygon points="72,286 200,270 340,224 470,168 600,108 688,72 688,258 600,268 470,278 340,284 200,288 72,290" fill="#fbdbe6" opacity="0.55"/>
+        <text x="585" y="205" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="10" fill="#c42b59">what you recover</text>
+        <!-- by design (flat) -->
+        <polyline points="72,290 200,288 340,284 470,278 600,268 688,258" fill="none" stroke="#E6396F" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- run through you (rising) -->
+        <polyline points="72,286 200,270 340,224 470,168 600,108 688,72" fill="none" stroke="#1B2A4A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- today marker -->
+        <line x1="340" y1="312" x2="340" y2="224" stroke="#b9c0cc" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="356" y1="224" x2="356" y2="284" stroke="#c42b59" stroke-width="1.5"/>
+        <line x1="352" y1="224" x2="360" y2="224" stroke="#c42b59" stroke-width="1.5"/>
+        <line x1="352" y1="284" x2="360" y2="284" stroke="#c42b59" stroke-width="1.5"/>
+        <text x="366" y="258" text-anchor="start" font-family="Fragment Mono,monospace" font-size="12" font-weight="700" fill="#c42b59">&#8776; &pound;90k / yr</text>
+        <circle cx="340" cy="224" r="5.5" fill="#1B2A4A" stroke="#fff" stroke-width="2"/>
+        <circle cx="340" cy="284" r="4.5" fill="#E6396F" stroke="#fff" stroke-width="2"/>
+        <text x="340" y="210" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="9.5" fill="#1B2A4A">You today</text>
+        <!-- legend -->
+        <rect x="92" y="50" width="22" height="5" rx="2.5" fill="#1B2A4A"/>
+        <text x="122" y="59" font-family="Fragment Mono,monospace" font-size="10.5" fill="#5b6472">Run it through you</text>
+        <rect x="92" y="70" width="22" height="5" rx="2.5" fill="#E6396F"/>
+        <text x="122" y="79" font-family="Fragment Mono,monospace" font-size="10.5" fill="#5b6472">Run it by design</text>
+      </svg>
     </div>
-    <div class="mcap"><b>The holiday test:</b> if you stepped away for a fortnight, the work keeps moving at the same quality. Closing the five gaps above is what gets you there, and it is worth about &pound;90,000 a year.</div>
+    <div class="mcap"><b>The holiday test:</b> if you stepped away for a fortnight, the work keeps moving at the same quality. That is what running by design means, and today it is worth about &pound;90,000 a year.</div>
   </div>
 
   <!-- Proof -->
