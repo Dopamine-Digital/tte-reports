@@ -154,6 +154,20 @@ img{max-width:100%;height:auto}
 .worth .eg{margin-top:16px;font-size:13.5px;color:var(--ink);background:var(--accent-tint);border-radius:10px;padding:13px 15px;line-height:1.5}
 .worth .eg b{font-weight:700}
 
+/* mechanism (USP: runs through you -> runs by design) */
+.mech{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+.mpanel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;box-shadow:0 6px 20px rgba(27,42,74,.05);display:flex;flex-direction:column;min-width:0}
+.mpanel.mafter{border-color:var(--accent-deep);box-shadow:0 10px 28px rgba(230,57,111,.12)}
+.mpanel svg{width:100%;height:auto;margin-bottom:10px}
+.mpanel h4{font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;font-family:var(--mono)}
+.mpanel.mbefore h4{color:var(--muted)}
+.mpanel.mafter h4{color:var(--accent-deep)}
+.mpanel p{font-size:13px;color:var(--muted);line-height:1.5}
+.marrow{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:30px;font-weight:700;font-family:var(--mono)}
+.mcap{margin-top:16px;font-size:13.5px;color:var(--ink);background:var(--accent-tint);border-radius:10px;padding:13px 15px;line-height:1.5}
+.mcap b{font-weight:700}
+@media(max-width:680px){.mech{grid-template-columns:1fr}.marrow{transform:rotate(90deg)}}
+
 /* offer */
 .offer{background:linear-gradient(165deg,#ffffff,var(--accent-tint));border:1.5px solid var(--accent-deep);border-radius:18px;padding:30px 32px;box-shadow:0 14px 40px rgba(27,42,74,.08)}
 .offer .eyebrow{display:inline-block;font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:var(--accent);padding:5px 12px;border-radius:30px;font-family:var(--mono)}
@@ -367,6 +381,55 @@ img{max-width:100%;height:auto}
     </div>
   </div>
 
+  <!-- Mechanism: the USP made visual -->
+  <div class="section">
+    <div class="section-head"><h2>What the fix actually does</h2></div>
+    <p class="section-intro">Medhya does not bolt AI onto how you work. She redesigns who owns which decisions so the structure carries the work, not the partners. That is the move from intervention-sustained to design-sustained.</p>
+    <div class="mech">
+      <div class="mpanel mbefore">
+        <svg viewBox="0 0 240 156" role="img" aria-label="Today, work and decisions all route back through the partners">
+          <line x1="120" y1="78" x2="44" y2="30" stroke="#c4ccd8" stroke-width="2"/>
+          <line x1="120" y1="78" x2="196" y2="30" stroke="#c4ccd8" stroke-width="2"/>
+          <line x1="120" y1="78" x2="44" y2="126" stroke="#c4ccd8" stroke-width="2"/>
+          <line x1="120" y1="78" x2="196" y2="126" stroke="#c4ccd8" stroke-width="2"/>
+          <g font-family="Fragment Mono,monospace" font-size="9" fill="#5b6472" text-anchor="middle">
+            <rect x="16" y="18" width="56" height="24" rx="7" fill="#eceef3"/><text x="44" y="33">Sales</text>
+            <rect x="168" y="18" width="56" height="24" rx="7" fill="#eceef3"/><text x="196" y="33">Delivery</text>
+            <rect x="16" y="114" width="56" height="24" rx="7" fill="#eceef3"/><text x="44" y="129">Reporting</text>
+            <rect x="168" y="114" width="56" height="24" rx="7" fill="#eceef3"/><text x="196" y="129">Decisions</text>
+          </g>
+          <circle cx="120" cy="78" r="30" fill="#1B2A4A"/>
+          <text x="120" y="75" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="9.5" fill="#fff">The</text>
+          <text x="120" y="87" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="9.5" fill="#fff">partners</text>
+        </svg>
+        <h4>Today, runs through you</h4>
+        <p>Work, decisions and reporting all loop back through the partners. Step away for a fortnight and it waits.</p>
+      </div>
+      <div class="marrow">&rarr;</div>
+      <div class="mpanel mafter">
+        <svg viewBox="0 0 240 156" role="img" aria-label="By design, work flows across the structure and the partners move up to strategy">
+          <rect x="86" y="16" width="68" height="24" rx="7" fill="#E6396F"/>
+          <text x="120" y="31" text-anchor="middle" font-family="Fragment Mono,monospace" font-size="9" fill="#fff">Partners</text>
+          <line x1="120" y1="40" x2="120" y2="92" stroke="#E6396F" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <g font-family="Fragment Mono,monospace" font-size="8.5" fill="#1B2A4A" text-anchor="middle">
+            <rect x="6" y="104" width="50" height="24" rx="7" fill="#fdeaf1"/><text x="31" y="119">Sales</text>
+            <rect x="69" y="104" width="50" height="24" rx="7" fill="#fdeaf1"/><text x="94" y="119">Deliver</text>
+            <rect x="132" y="104" width="50" height="24" rx="7" fill="#fdeaf1"/><text x="157" y="119">Report</text>
+            <rect x="192" y="104" width="42" height="24" rx="7" fill="#fdeaf1"/><text x="213" y="119">Done</text>
+          </g>
+          <g stroke="#3F6FC8" stroke-width="2" fill="#3F6FC8">
+            <line x1="56" y1="116" x2="67" y2="116"/><polygon points="69,116 62,112.5 62,119.5"/>
+            <line x1="119" y1="116" x2="130" y2="116"/><polygon points="132,116 125,112.5 125,119.5"/>
+            <line x1="182" y1="116" x2="190" y2="116"/><polygon points="192,116 185,112.5 185,119.5"/>
+          </g>
+        </svg>
+        <h4>By design</h4>
+        <p>Each handover owns its decision. Work moves across the structure, and the partners move up to winning and strategy.</p>
+      </div>
+    </div>
+    <div class="mcap"><b>The holiday test:</b> if you stepped away for a fortnight, the work keeps moving at the same quality. Closing the five gaps above is what gets you there, and it is worth about &pound;90,000 a year.</div>
+  </div>
+
   <!-- Proof -->
   <div class="section">
     <div class="proof">
@@ -449,7 +512,7 @@ img{max-width:100%;height:auto}
 
 <script>
 (function(){
-  var sel='.headline-card,.section-head,.snapshot,.leak,.proof,.worth,.offer,.cta,.offer-strip';
+  var sel='.headline-card,.section-head,.snapshot,.leak,.mpanel,.mcap,.proof,.worth,.offer,.cta,.offer-strip';
   var els=[].slice.call(document.querySelectorAll(sel));
   els.forEach(function(el){el.classList.add('reveal')});
   if(!('IntersectionObserver' in window)){els.forEach(function(el){el.classList.add('in')});return;}
